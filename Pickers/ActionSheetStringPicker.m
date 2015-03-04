@@ -61,6 +61,8 @@
         self.data = data;
         self.selectedIndex = index;
         self.title = title;
+        self.rowHeight = 60.0f;
+        self.titleFontSize = 18.0f;
     }
     return self;
 }
@@ -72,7 +74,8 @@
     CGRect pickerFrame = CGRectMake(0, 40, self.viewSize.width, 216);
     UIPickerView *stringPicker = [[UIPickerView alloc] initWithFrame:pickerFrame];
     stringPicker.delegate = self;
-    stringPicker.dataSource = self;
+    stringPicker.dataSource = self;      
+    
     [stringPicker selectRow:self.selectedIndex inComponent:0 animated:NO];
     if (self.data.count == 0) {
         stringPicker.showsSelectionIndicator = NO;
@@ -131,24 +134,34 @@
     return self.data.count;
 }
 
-- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
-    id obj = (self.data)[(NSUInteger) row];
-
-    // return the object if it is already a NSString,
-    // otherwise, return the description, just like the toString() method in Java
-    // else, return nil to prevent exception
-
-    if ([obj isKindOfClass:[NSString class]])
-        return obj;
-
-    if ([obj respondsToSelector:@selector(description)])
-        return [obj performSelector:@selector(description)];
-
-    return nil;
-}
-
 - (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component {
     return pickerView.frame.size.width - 30;
+}
+
+- (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component {
+    return self.rowHeight;
+}
+
+- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view {
+    
+    UILabel *pickerLabel = (UILabel *)view;
+
+    NSString* labelText = (self.data)[(NSUInteger) row];
+    
+    if (pickerLabel == nil) {
+
+        CGRect frame = CGRectMake(10.0, 0.0, self.viewSize.width-20.0, self.rowHeight);
+        pickerLabel = [[UILabel alloc] initWithFrame:frame];
+        [pickerLabel setTextAlignment:UITextAlignmentCenter];
+        [pickerLabel setBackgroundColor:[UIColor clearColor]];
+        [pickerLabel setFont:[UIFont systemFontOfSize:self.titleFontSize]];
+        pickerLabel.lineBreakMode = NSLineBreakByWordWrapping;
+        pickerLabel.numberOfLines = 0;
+    }
+    
+    [pickerLabel setText:(self.data)[(NSUInteger) row]];
+    
+    return pickerLabel;
 }
 
 @end
